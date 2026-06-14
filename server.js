@@ -1,32 +1,22 @@
 const WebSocket = require('ws');
 const http = require('http');
 
-// Render сам назначает порт через переменную окружения
 const port = process.env.PORT || 10000;
 const server = http.createServer();
 const wss = new WebSocket.Server({ server });
 
-console.log("Сервер запускается...");
-
 wss.on('connection', (ws) => {
-    console.log("Новый игрок подключился!");
+    console.log("Игрок подключился к my-game-server!");
     
     ws.on('message', (message) => {
-        // Логика игры
+        const msg = message.toString();
+        // Рассылаем сообщение всем подключенным
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
+                client.send(msg);
             }
         });
     });
 });
 
-// Слушаем порт
-server.listen(port, () => {
-    console.log('Сервер запущен на порту ' + port);
-});
-
-// "Будильник", чтобы Render не засыпал
-setInterval(() => {
-    console.log("Сервер активен: " + new Date().toLocaleTimeString());
-}, 300000); // каждые 5 минут
+server.listen(port, () => console.log('my-game-server запущен на порту ' + port));
